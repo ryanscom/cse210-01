@@ -1,113 +1,127 @@
+import tkinter as tk
+from tkinter import*
+
+
 """
 cse210: Tic Tac Toe assignment 
 Author: Ryan Manthey
 
 """
+
+
 def main():
-
-    playgame = True
-
-    while playgame == True: # Main game loop
-        win = "play"
-        choice_x = False
-        choice_o = False
-
-        n_list = [1, 2, 3, 4, 5, 6, 7, 8, 9] # List for the board
-
-        print()
-        print("Let's play Tic Tac Toe! ") # Welcome statement
-
-        print_board(n_list) 
-
-        while win != "X" or win != "O": # Screen board for X and O
-        
-            while choice_x == False: # Loop for player X
-                x_pick = input("(Pick a number between 1 and 9) X's turn to pick a square: ")
-                x_pick = int(x_pick)
-                x_pick = x_pick -1
-
-                used_space_message(n_list, x_pick)
-
-                if n_list[x_pick] != "O":
-                    if n_list[x_pick] != "X":
-                        n_list[x_pick] = "X"
-                        choice_x = True 
-                        choice_o = False   
-                           
-            print_board(n_list) 
-            winner = win_conditions(n_list)
+    
+        playgame = True
+   
+        while playgame == True: # Main game loop
             
-            if winner == "X" or winner == "O" or winner == "draw":
+            # messages list
+            messages = ["Player X starts!"]
 
-                win_print(winner) 
-                yes_no = play_again()
-                
-                if yes_no == "y":
-                    break
-                
-                if yes_no == "n":
-                    playgame = False
-                    break
+            n_list = [1, 2, 3, 4, 5, 6, 7, 8, 9] # List for the board
+            root = Tk()
 
-            while choice_o == False: # Loop for player O
-                o_pick = input("(Pick a number between 1 and 9) O's turn to pick a square: ")
-                o_pick = int(o_pick)
-                o_pick = o_pick -1
+            frm_main = tk.Frame(root)
+            frm_main.master.title("TIC TAC TOE")
 
-                used_space_message(n_list, o_pick)
-                
-                if n_list[o_pick] != "X":
-                    if n_list[o_pick] != "O":
-                        n_list[o_pick] = "O"
-                        choice_o = True
-                        choice_x = False
-                        
-            print_board(n_list)
-            winner = win_conditions(n_list)
+            # Make the main parent frames
+            frm_1 = LabelFrame(root, width = 600, height = 50, bd = 2, relief ="groove", bg = "lavenderblush3") # Message frame
+            frm_1.pack(side = TOP, fill = BOTH)
+            frm_2 = LabelFrame(root, width = 600, height = 50, bd = 2, relief ="groove", bg = "lavenderblush3") # Message frame
+            frm_2.pack(side = TOP, fill = BOTH)
+            frm_3 = Frame(root, width = 600, height = 200, relief = "groove", bg = "lavenderblush3")
+            frm_3.pack(side = TOP, fill = BOTH)
 
-            if winner == "X" or winner == "O" or winner == "draw":
-             
-                win_print(winner)  
-                yes_no = play_again()
-                
-                if yes_no == "y":
-                    break
+            # text displays
+            title_display = tk.Label(frm_1, font = ("arial", 16, "bold"), bg = "lavenderblush3", text = "Let's play TIC TAC TOE!") # Message Label
+            title_display.place(anchor = CENTER, relx=0.5, rely=0.5) # Used .place(anchor) instead of .pack to center the message.
+            message_display = tk.Label(frm_2, text = messages[0], font = ("arial", 16, "bold"), bg = "lavenderblush3", fg = "maroon") 
+            message_display.place(anchor = CENTER, relx=0.5, rely=0.5) # Used .place(anchor) instead of .pack to center the message.
+            
+            # List to hold the references to the buttons created below
+            buttons = []
 
-                if yes_no == "n":
-                    playgame = False
-                    break
+            # player list
+            players = ["X"]
 
-def used_space_message(n_list, pick): # Prints messages when a space has already been used
-    if n_list[pick] == "X":
-        print("Sorry player X already chose that square. ")
-    elif n_list[pick] == "O":
-        print("Sorry player O already chose that square. ")
+            # Grid variables
+            Row = 2
+            column = 0
 
-def win_print(win): # Prints who won the game or if it was a draw       
+            for index in range(9):
+        
+                # Get the current letter from the letters list
+                boardbuttons = n_list[index]
+              
+                # Make the button
+                button = Button(frm_3, text = boardbuttons, width = 9, height = 3, font = ("arial", 30, "bold"), command = lambda index = index, buttons = buttons, boardbuttons = boardbuttons, players = players, n_list = n_list, messages = messages, message_display = message_display, frm_2 = frm_2: click(index, buttons, boardbuttons, players, n_list, messages, message_display, frm_2), bg = "light grey", fg = "maroon",padx = 3,pady = 3, bd = 5)
+
+                # Add button to the frame
+                button.grid(row = Row, column = column )
+
+                # Add a reference to the button to 'buttons'
+                buttons.append(button) 
+
+                column += 1
+
+                if column > 2 and Row == 2:
+                    column = 0
+                    Row += 1
+                if column > 2 and Row == 3:
+                    column = 0
+                    Row += 1
+
+            running = input("Running... ")
+           
+            # playgame = False
+
+def click(index, buttons, boardbuttons, players, n_list, messages, message_display, frm_2):
+
+    # Disable the button by index and change number to player X or 0
+    buttons[index].config(state = "disabled", text = players[0], fg = "white", bg = "maroon" )
+    # buttons[index].config(text = n_list[boardbuttons -1], fg = "white", bg = "maroon" )
+
+    # Switch number list index with player X or O
+    n_list[boardbuttons - 1] = players[0]
+    
+    # Switch player and message for frm_2
+    switchplayer(players, messages)
+    message_display.config(text = messages[0], fg = "maroon")
+
+    # Check if player won
+    win_or_draw = win_conditions(n_list)
+
+    #Screen for X, O, or draw
+    if win_or_draw == "X" or win_or_draw == "O" or win_or_draw == "draw":
+        for button in range(9):
+            if n_list[index] == "X": 
+                buttons[button].config(state = "disabled", bg = "grey", fg = "white")
+
+        win_print(win_or_draw, messages)
+        message_display.config(text = messages[0], fg = "white", bg = "maroon")
+        frm_2.config(bg = "maroon")
+
+
+
+def switchplayer(players, messages):
+    if players[0] == "X":
+        players[0] = "O"
+        messages[0] = "It's player O's turn to pick a square!"
+        
+    elif players[0] == "O":
+        players[0] = "X"
+        messages[0] = "It's player X's turn to pick a square!"
+
+def win_print(win, messages): # Prints who won the game or if it was a draw       
     if win == "X":
-        print()
-        print("Player X won!")
-        print()
+        messages[0] = "Player X won!"
 
     elif win == "O":
-        print()
-        print("player O won!")
-        print()
-
+        messages[0] = "Player O won!"
+        
     elif win == "draw":
-        print()
-        print("It's a draw!")
-        print()
-   
-def print_board(n_list): # prints the game board that references the indexes from n_list
-    print(f"""
-{n_list[0]}|{n_list[1]}|{n_list[2]}
--+-+-
-{n_list[3]}|{n_list[4]}|{n_list[5]}
--+-+-
-{n_list[6]}|{n_list[7]}|{n_list[8]}
-""")
-
+        messages[0] = "It's a draw!"
+        
 def win_conditions(n_list): # list of win conditions for player X, O, as well as draw conditions
     if (n_list[0] == "X" and n_list[1] == "X" and n_list[2] == "X") or (n_list[3] == "X" and n_list[4] == "X" and n_list[5] == "X") or (n_list[6] == "X" and n_list[7] == "X" and n_list[8] == "X") or (n_list[0] == "X" and n_list[4] == "X" and n_list[8] == "X") or (n_list[2] == "X" and n_list[4] == "X" and n_list[6] == "X") or (n_list[0] == "X" and n_list[3] == "X" and n_list[6] == "X") or (n_list[1] == "X" and n_list[4] == "X" and n_list[7] == "X") or (n_list[2] == "X" and n_list[5] == "X" and n_list[8] == "X"):
 
